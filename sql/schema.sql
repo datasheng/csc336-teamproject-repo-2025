@@ -26,3 +26,11 @@ CREATE TABLE IF NOT EXISTS events (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS event_registrations (
+    registration_id BIGSERIAL PRIMARY KEY,
+    event_id BIGINT NOT NULL REFERENCES events(event_id) ON DELETE CASCADE,
+    user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    registration_date TIMESTAMP DEFAULT NOW(),
+    status VARCHAR(50) DEFAULT 'registered'
+);
+

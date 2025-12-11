@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Organization Login | CCNY Beavers Event Ticketing</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
 
   <!-- HEADER (same as all pages)-->
@@ -17,12 +19,16 @@
       </div>
       <nav>
         <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="event-detail.html">Events</a></li>
-          <li><a href="register.html">Register</a></li>
-          <li><a href="login.html" class="active">Organization Login</a></li>
-          <li><a href="create-event.html">Create Event</a></li>
-          <li><a href="revenue.html">Revenue</a></li>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('event_list') }}">Events</a></li>
+          <li><a href="{{ url_for('register_for_event') }}">Register</a></li>
+          {% if session.get('org_id') %}
+          <li><a href="{{ url_for('logout') }}" class="active">Logout</a></li>
+          {% else %}
+          <li><a href="{{ url_for('login_register') }}" class="active">Organization Login</a></li>
+          {% endif %}
+          <li><a href="{{ url_for('create_event') }}">Create Event</a></li>
+          <li><a href="{{ url_for('revenue_dashboard') }}">Revenue</a></li>
         </ul>
       </nav>
     </div>
@@ -41,16 +47,16 @@
       </div>
 
       <!--LOGIN FORM (Visible by default)-->
-      <form id="loginForm" class="auth-form active">
+      <form id="loginForm" class="auth-form active" method="POST">
         <!-- Backend: Verify organization credentials and start a session -->
         <div class="form-group">
           <label for="loginEmail">Organization Email</label>
-          <input type="email" id="loginEmail" placeholder="Enter your registered email" required>
+          <input type="email" id="loginEmail" name="loginEmail" placeholder="Enter your registered email" required>
         </div>
 
         <div class="form-group">
           <label for="loginPassword">Password</label>
-          <input type="password" id="loginPassword" placeholder="Enter your password" required>
+          <input type="password" id="loginPassword" name="loginPassword" placeholder="Enter your password" required>
         </div>
 
         <button type="submit" class="btn btn-primary">Login</button>
@@ -59,26 +65,26 @@
       </form>
 
       <!-- REGISTER FORM (Hidden initially)-->
-      <form id="registerForm" class="auth-form">
+      <form id="registerForm" class="auth-form" method="POST">
         <!-- Backend: Insert new organization details into database (Organizations table) -->
         <div class="form-group">
           <label for="orgName">Organization Name</label>
-          <input type="text" id="orgName" placeholder="Enter organization name" required>
+          <input type="text" id="orgName" name="orgName" placeholder="Enter organization name" required>
         </div>
 
         <div class="form-group">
           <label for="orgEmail">Contact Email</label>
-          <input type="email" id="orgEmail" placeholder="Enter organization email" required>
+          <input type="email" id="orgEmail" name="orgEmail" placeholder="Enter organization email" required>
         </div>
 
         <div class="form-group">
           <label for="orgPhone">Phone Number</label>
-          <input type="tel" id="orgPhone" placeholder="Enter contact phone number" required>
+          <input type="tel" id="orgPhone" name="orgPhone" placeholder="Enter contact phone number" required>
         </div>
 
         <div class="form-group">
           <label for="orgPassword">Password</label>
-          <input type="password" id="orgPassword" placeholder="Create a password" required>
+          <input type="password" id="orgPassword" name="orgPassword" placeholder="Create a password" required>
         </div>
 
         <button type="submit" class="btn btn-success">Register</button>
@@ -118,4 +124,5 @@
   </script>
 
 </body>
+
 </html>

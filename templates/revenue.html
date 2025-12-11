@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Revenue Dashboard | CCNY Beavers Event Ticketing</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
 
   <!--HEADER (same as all pages)-->
@@ -17,12 +19,16 @@
       </div>
       <nav>
         <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="event-detail.html">Events</a></li>
-          <li><a href="register.html">Register</a></li>
-          <li><a href="login.html">Organization Login</a></li>
-          <li><a href="create-event.html">Create Event</a></li>
-          <li><a href="revenue.html" class="active">Revenue</a></li>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('event_list') }}">Events</a></li>
+          <li><a href="{{ url_for('register_for_event') }}">Register</a></li>
+          {% if session.get('org_id') %}
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          {% else %}
+          <li><a href="{{ url_for('login_register') }}">Organization Login</a></li>
+          {% endif %}
+          <li><a href="{{ url_for('create_event') }}">Create Event</a></li>
+          <li><a href="{{ url_for('revenue_dashboard') }}" class="active">Revenue</a></li>
         </ul>
       </nav>
     </div>
@@ -41,22 +47,22 @@
       <!-- BACKEND: Replace these placeholder values with real MySQL data -->
       <div class="stat-card gold">
         <h3>Total Revenue</h3>
-        <div class="stat-value">$3,250</div>
+        <div class="stat-value">{{ stats.total_revenue }}</div>
       </div>
 
       <div class="stat-card">
         <h3>Total Tickets Sold</h3>
-        <div class="stat-value">187</div>
+        <div class="stat-value">{{ stats.total_tickets_sold }}</div>
       </div>
 
       <div class="stat-card">
         <h3>Events Hosted</h3>
-        <div class="stat-value">5</div>
+        <div class="stat-value">{{ stats.events_hosted }}</div>
       </div>
 
       <div class="stat-card">
         <h3>Average Attendance</h3>
-        <div class="stat-value">74%</div>
+        <div class="stat-value">{{ stats.avg_attendance }}</div>
       </div>
     </div>
 
@@ -73,35 +79,20 @@
           </tr>
         </thead>
         <tbody>
-          <!-- BACKEND: Replace these sample rows with data pulled from the Events & Payments tables -->
+          {% for row in event_rows %}
           <tr>
-            <td>HackCCNY 2025</td>
-            <td>Mar 10, 2025</td>
-            <td>60</td>
-            <td>600</td>
-            <td>90%</td>
+            <td>{{ row.title }}</td>
+            <td>{{ row.starts_at.strftime('%b %d, %Y') }}</td>
+            <td>{{ row.tickets_sold }}</td>
+            <td>${{ "{:,.2f}".format(row.revenue_cents / 100) }}</td>
+            <td>TBD</td>
           </tr>
+          {% endfor %}
+          {% if not event_rows %}
           <tr>
-            <td>Spring Cultural Night</td>
-            <td>Apr 4, 2025</td>
-            <td>45</td>
-            <td>450</td>
-            <td>78%</td>
+            <td colspan="5">No revenue data available.</td>
           </tr>
-          <tr>
-            <td>Cybersecurity Workshop</td>
-            <td>Apr 25, 2025</td>
-            <td>32</td>
-            <td>320</td>
-            <td>65%</td>
-          </tr>
-          <tr>
-            <td>CCNY Charity Run</td>
-            <td>May 12, 2025</td>
-            <td>50</td>
-            <td>500</td>
-            <td>80%</td>
-          </tr>
+          {% endif %}
         </tbody>
       </table>
     </div>
@@ -120,6 +111,7 @@
   </footer>
 
 </body>
+
 </html>
 
 <!-- 

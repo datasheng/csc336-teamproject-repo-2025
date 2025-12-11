@@ -2,12 +2,22 @@
 CREATE TABLE users (
   user_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   full_name VARCHAR(120),
-  email VARCHAR(160)
+  email VARCHAR(160),
+  password_hash VARCHAR(255)
 );
 
 CREATE TABLE organizations (
   org_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   org_name VARCHAR(120)
+);
+
+CREATE TABLE org_members (
+  org_id INT UNSIGNED NOT NULL,
+  user_id INT UNSIGNED NOT NULL,
+  role VARCHAR(50) NOT NULL DEFAULT 'MEMBER',
+  PRIMARY KEY (org_id, user_id),
+  CONSTRAINT fk_members_org FOREIGN KEY (org_id) REFERENCES organizations(org_id) ON DELETE CASCADE,
+  CONSTRAINT fk_members_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE events (
@@ -66,6 +76,14 @@ CREATE TABLE payments (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_pay_order FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
   CHECK (amount_cents >= 0)
+) ENGINE=InnoDB;
+
+CREATE TABLE revenue (
+  revenue_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  order_id INT UNSIGNED NOT NULL,
+  platform_fee_cents INT UNSIGNED NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_revenue_order FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_events_org ON events(org_id);

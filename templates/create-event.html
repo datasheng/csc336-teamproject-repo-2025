@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create Event | CCNY Beavers Event Ticketing</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
 
   <!-- HEADER (same as all pages)-->
@@ -17,12 +19,16 @@
       </div>
       <nav>
         <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="event-detail.html">Events</a></li>
-          <li><a href="register.html">Register</a></li>
-          <li><a href="login.html">Organization Login</a></li>
-          <li><a href="create-event.html" class="active">Create Event</a></li>
-          <li><a href="revenue.html">Revenue</a></li>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('event_list') }}">Events</a></li>
+          <li><a href="{{ url_for('register_for_event') }}">Register</a></li>
+          {% if session.get('org_id') %}
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          {% else %}
+          <li><a href="{{ url_for('login_register') }}">Organization Login</a></li>
+          {% endif %}
+          <li><a href="{{ url_for('create_event') }}" class="active">Create Event</a></li>
+          <li><a href="{{ url_for('revenue_dashboard') }}">Revenue</a></li>
         </ul>
       </nav>
     </div>
@@ -39,21 +45,21 @@
         - On submit, Flask should insert data into the “Events” table.
         - After success, redirect to thank_you.html.
       -->
-      <form id="createEventForm">
-        
+      <form id="createEventForm" method="POST">
+
         <div class="form-group">
           <label for="eventName">Event Name</label>
-          <input type="text" id="eventName" placeholder="Enter event name" required>
+          <input type="text" id="eventName" name="eventName" placeholder="Enter event name" required>
         </div>
 
         <div class="form-group">
           <label for="eventDate">Date & Time</label>
-          <input type="datetime-local" id="eventDate" required>
+          <input type="datetime-local" id="eventDate" name="eventDate" required>
         </div>
 
         <div class="form-group">
           <label for="eventLocation">Location</label>
-          <input type="text" id="eventLocation" placeholder="Enter event location" required>
+          <input type="text" id="eventLocation" name="eventLocation" placeholder="Enter event location" required>
         </div>
 
         <div class="form-group">
@@ -63,12 +69,12 @@
 
         <div class="form-group">
           <label for="ticketPrice">Ticket Price ($)</label>
-          <input type="number" id="ticketPrice" placeholder="Enter ticket price" required>
+          <input type="number" id="ticketPrice" name="ticketPrice" placeholder="Enter ticket price" required>
         </div>
 
         <div class="form-group">
           <label for="totalTickets">Total Tickets Available</label>
-          <input type="number" id="totalTickets" placeholder="Enter number of tickets" required>
+          <input type="number" id="totalTickets" name="totalTickets" placeholder="Enter number of tickets" required>
         </div>
 
         <div class="form-group">
@@ -95,23 +101,10 @@
     <p>City College of New York • CCNY Beavers Event Ticketing System</p>
   </footer>
 
-  <!--FRONTEND PLACEHOLDER SCRIPT -->
-  <script>
-    const form = document.getElementById('createEventForm');
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-
-      // BACKEND: This alert is only temporary and will be deleted.
-      // Flask should handle saving event details to MySQL, then redirect to thank_you.html
-      alert('Event created successfully! (Backend will replace this with database connection)');
-      
-      // Placeholder redirect
-      window.location.href = "thank_you.html";
-    });
-  </script>
 
 </body>
+
 </html>
 
 <!-- 

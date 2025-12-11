@@ -1,5 +1,6 @@
 import os
 import mysql.connector
+from datetime import datetime, timedelta
 from functools import wraps
 from dotenv import load_dotenv
 from flask import (
@@ -53,10 +54,12 @@ def index():
     db, cursor = get_db()
     # Fetch events that are published
     query = """
-    SELECT e.event_id, e.title, e.venue, e.starts_at, e.ends_at, o.org_name
+    SELECT e.event_id, e.title, e.venue, e.starts_at, e.ends_at, o.org_name, MIN(t.price_cents) as price_cents
     FROM events e
     JOIN organizations o ON e.org_id = o.org_id
+    LEFT JOIN tickets t ON e.event_id = t.event_id
     WHERE e.is_published = TRUE
+    GROUP BY e.event_id
     ORDER BY e.starts_at ASC LIMIT 6;
     """
     cursor.execute(query)
@@ -94,7 +97,7 @@ def login_register():
 
             try:
                 # 1. Create User
-                cursor.execute("INSERT INTO users (full_name, user_email, password_hash) VALUES (%s, %s, %s)", 
+                cursor.execute("INSERT INTO users (full_name, email, password_hash) VALUES (%s, %s, %s)", 
                                (org_name + " Admin", email, hashed_pw))
                 new_user_id = cursor.lastrowid
 
@@ -124,7 +127,7 @@ def login_register():
             password = request.form['loginPassword']
             
             # Find user
-            cursor.execute("SELECT * FROM users WHERE user_email = %s", (email,))
+            cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
             user = cursor.fetchone()
             
             if user and user['password_hash'] and check_password_hash(user['password_hash'], password):
@@ -161,11 +164,11 @@ def register_for_event():
         
         try:
             # 1. Find or Create User (Guest checkout flow)
-            cursor.execute("SELECT user_id FROM users WHERE user_email = %s", (email,))
+            cursor.execute("SELECT user_id FROM users WHERE email = %s", (email,))
             user = cursor.fetchone()
             if not user:
                 # Create a user without a password (guest)
-                cursor.execute("INSERT INTO users (full_name, user_email) VALUES (%s, %s)", (full_name, email))
+                cursor.execute("INSERT INTO users (full_name, email) VALUES (%s, %s)", (full_name, email))
                 user_id = cursor.lastrowid
             else:
                 user_id = user['user_id']
@@ -225,8 +228,19 @@ def create_event():
         
         title = request.form['eventName']
         venue = request.form['eventLocation']
-        starts_at = request.form['eventDate']
-        ends_at = starts_at 
+        starts_at_str = request.form['eventDate']
+        
+        # Calculate default end time (2 hours later) to satisfy DB constraint ends_at > starts_at
+        try:
+            start_dt = datetime.strptime(starts_at_str, '%Y-%m-%dT%H:%M')
+        except ValueError:
+             # Fallback if seconds are included or format differs
+            start_dt = datetime.strptime(starts_at_str, '%Y-%m-%d %H:%M:%S')
+
+        end_dt = start_dt + timedelta(hours=2)
+        
+        starts_at = start_dt
+        ends_at = end_dt 
         
         price = float(request.form['ticketPrice'])
         price_cents = int(price * 100)

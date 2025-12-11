@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Thank You | CCNY Beavers Event Ticketing</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
 
   <!-- HEADER (same as all pages) -->
@@ -17,12 +19,16 @@
       </div>
       <nav>
         <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="event-detail.html">Events</a></li>
-          <li><a href="register.html">Register</a></li>
-          <li><a href="login.html">Organization Login</a></li>
-          <li><a href="create-event.html">Create Event</a></li>
-          <li><a href="revenue.html">Revenue</a></li>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('event_list') }}">Events</a></li>
+          <li><a href="{{ url_for('register_for_event') }}">Register</a></li>
+          {% if session.get('org_id') %}
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          {% else %}
+          <li><a href="{{ url_for('login_register') }}">Organization Login</a></li>
+          {% endif %}
+          <li><a href="{{ url_for('create_event') }}">Create Event</a></li>
+          <li><a href="{{ url_for('revenue_dashboard') }}">Revenue</a></li>
         </ul>
       </nav>
     </div>
@@ -40,7 +46,7 @@
           - The "Back to Homepage" button simply redirects users to the homepage (no backend required).
           - The backend will handle storing registration data and redirecting here once registration is successful.
         -->
-        <a href="index.html" class="btn btn-primary">Back to Homepage</a>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Homepage</a>
       </div>
     </section>
   </main>
@@ -51,4 +57,5 @@
   </footer>
 
 </body>
+
 </html>

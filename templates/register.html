@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Register for Event | CCNY Beavers Event Ticketing</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
 </head>
 
 <body>
@@ -17,11 +18,16 @@
       </div>
       <nav>
         <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="event-detail.html">Events</a></li>
-          <li><a href="register.html" class="active">Register</a></li>
-          <li><a href="create-event.html">Create Event</a></li>
-          <li><a href="revenue.html">Revenue</a></li>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('event_list') }}">Events</a></li>
+          <li><a href="{{ url_for('register_for_event') }}" class="active">Register</a></li>
+          {% if session.get('org_id') %}
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          {% else %}
+          <li><a href="{{ url_for('login_register') }}">Organization Login</a></li>
+          {% endif %}
+          <li><a href="{{ url_for('create_event') }}">Create Event</a></li>
+          <li><a href="{{ url_for('revenue_dashboard') }}">Revenue</a></li>
         </ul>
       </nav>
     </div>
@@ -36,17 +42,18 @@
       <!-- BACKEND: This entire form will later POST data to Flask -->
       <!-- BACKEND: Each input will be mapped to the Tickets and Payments tables in the database -->
       <form action="#" method="POST">
-        
+
         <!-- Event Selection -->
         <div class="form-group">
           <label for="event">Select Event</label>
           <select id="event" name="event" required>
-            <!-- BACKEND: Delete these placeholders later and replace with events dynamically fetched from the database -->
             <option value="">-- Choose an Event --</option>
-            <option value="hackccny2025">HackCCNY 2025</option>
-            <option value="cultural-night">Spring Cultural Night</option>
-            <option value="cyber-workshop">Cybersecurity Workshop</option>
-            <option value="ai-seminar">AI in Education Seminar</option>
+            {% for event in events %}
+            <option value="{{ event.event_id }}" {% if request.args.get('event_id')==event.event_id|string %}selected{%
+              endif %}>
+              {{ event.title }}
+            </option>
+            {% endfor %}
           </select>
         </div>
 
@@ -105,4 +112,5 @@
     <p>City College of New York • CCNY Beavers Event Ticketing System</p>
   </footer>
 </body>
+
 </html>

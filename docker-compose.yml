@@ -1,0 +1,35 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: campus_mysql
+    command:
+      - "--default-authentication-plugin=mysql_native_password"
+      - "--secure-file-priv=/var/lib/mysql-files"
+    ports:
+      - "${MYSQL_PORT}:3306"          # e.g. 3307:3306 in your .env
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - dbdata:/var/lib/mysql        # persistent storage
+      - ./mysql-init:/docker-entrypoint-initdb.d  # <-- keep this for schema + seed
+      - ./mysql-files:/var/lib/mysql-files
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  adminer:
+    image: adminer:latest
+    container_name: campus_adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  dbdata:

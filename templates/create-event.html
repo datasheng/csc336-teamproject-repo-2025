@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Event | CCNY Beavers Event Ticketing</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- HEADER (same as all pages)-->
+  <header>
+    <div class="header-container">
+      <div class="logo">
+        <h1>CCNY Beavers</h1>
+        <p>Event Ticketing System</p>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="event-detail.html">Events</a></li>
+          <li><a href="register.html">Register</a></li>
+          <li><a href="login.html">Organization Login</a></li>
+          <li><a href="create-event.html" class="active">Create Event</a></li>
+          <li><a href="revenue.html">Revenue</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CREATE EVENT FORM-->
+  <main class="container">
+    <div class="form-container">
+      <h2>Create New Event</h2>
+
+      <!-- 
+        BACKEND NOTE:
+        - This form is accessible only to logged-in organizations.
+        - On submit, Flask should insert data into the “Events” table.
+        - After success, redirect to thank_you.html.
+      -->
+      <form id="createEventForm">
+        
+        <div class="form-group">
+          <label for="eventName">Event Name</label>
+          <input type="text" id="eventName" placeholder="Enter event name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="eventDate">Date & Time</label>
+          <input type="datetime-local" id="eventDate" required>
+        </div>
+
+        <div class="form-group">
+          <label for="eventLocation">Location</label>
+          <input type="text" id="eventLocation" placeholder="Enter event location" required>
+        </div>
+
+        <div class="form-group">
+          <label for="eventDescription">Description</label>
+          <textarea id="eventDescription" placeholder="Describe the event" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="ticketPrice">Ticket Price ($)</label>
+          <input type="number" id="ticketPrice" placeholder="Enter ticket price" required>
+        </div>
+
+        <div class="form-group">
+          <label for="totalTickets">Total Tickets Available</label>
+          <input type="number" id="totalTickets" placeholder="Enter number of tickets" required>
+        </div>
+
+        <div class="form-group">
+          <label for="eventCategory">Event Category</label>
+          <select id="eventCategory" required>
+            <option value="" disabled selected>Select a category</option>
+            <option>Tech</option>
+            <option>Sports</option>
+            <option>Cultural</option>
+            <option>Academic</option>
+            <option>Social</option>
+            <option>Fundraising</option>
+          </select>
+        </div>
+
+        <!-- BACKEND: Flask should validate form, store in “Events” table, and redirect -->
+        <button type="submit" class="btn btn-success">Create Event</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- FOOTER-->
+  <footer>
+    <p>City College of New York • CCNY Beavers Event Ticketing System</p>
+  </footer>
+
+  <!--FRONTEND PLACEHOLDER SCRIPT -->
+  <script>
+    const form = document.getElementById('createEventForm');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // BACKEND: This alert is only temporary and will be deleted.
+      // Flask should handle saving event details to MySQL, then redirect to thank_you.html
+      alert('Event created successfully! (Backend will replace this with database connection)');
+      
+      // Placeholder redirect
+      window.location.href = "thank_you.html";
+    });
+  </script>
+
+</body>
+</html>
+
+<!-- 
+     BACKEND ACCESS CONTROL NOTE
+     
+     This page must be restricted to logged-in organizations only.
+     - Flask should verify session['org_id'] exists before rendering.
+     - If not logged in, redirect user to login.html.
+-->

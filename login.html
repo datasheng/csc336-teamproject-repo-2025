@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organization Login | CCNY Beavers Event Ticketing</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- HEADER (same as all pages)-->
+  <header>
+    <div class="header-container">
+      <div class="logo">
+        <h1>CCNY Beavers</h1>
+        <p>Event Ticketing System</p>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="event-detail.html">Events</a></li>
+          <li><a href="register.html">Register</a></li>
+          <li><a href="login.html" class="active">Organization Login</a></li>
+          <li><a href="create-event.html">Create Event</a></li>
+          <li><a href="revenue.html">Revenue</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!--AUTHENTICATION SECTION-->
+  <main class="container">
+    <div class="form-container">
+
+      <h2>Organization Access</h2>
+
+      <!-- Toggle Buttons -->
+      <div class="auth-toggle">
+        <button id="loginBtn" class="active">Login</button>
+        <button id="registerBtn">Register</button>
+      </div>
+
+      <!--LOGIN FORM (Visible by default)-->
+      <form id="loginForm" class="auth-form active">
+        <!-- Backend: Verify organization credentials and start a session -->
+        <div class="form-group">
+          <label for="loginEmail">Organization Email</label>
+          <input type="email" id="loginEmail" placeholder="Enter your registered email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Login</button>
+
+        <!-- Backend: Handle form submission, validate credentials, redirect to create-event.html if successful -->
+      </form>
+
+      <!-- REGISTER FORM (Hidden initially)-->
+      <form id="registerForm" class="auth-form">
+        <!-- Backend: Insert new organization details into database (Organizations table) -->
+        <div class="form-group">
+          <label for="orgName">Organization Name</label>
+          <input type="text" id="orgName" placeholder="Enter organization name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="orgEmail">Contact Email</label>
+          <input type="email" id="orgEmail" placeholder="Enter organization email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="orgPhone">Phone Number</label>
+          <input type="tel" id="orgPhone" placeholder="Enter contact phone number" required>
+        </div>
+
+        <div class="form-group">
+          <label for="orgPassword">Password</label>
+          <input type="password" id="orgPassword" placeholder="Create a password" required>
+        </div>
+
+        <button type="submit" class="btn btn-success">Register</button>
+
+        <!-- Backend: Store this new organization in MySQL “Organizations” table and redirect to create-event.html -->
+      </form>
+    </div>
+  </main>
+
+  <!-- FOOTER-->
+  <footer>
+    <p>City College of New York • CCNY Beavers Event Ticketing System</p>
+  </footer>
+
+  <!-- SIMPLE JS TOGGLE SCRIPT
+       (No backend, purely frontend)-->
+  <script>
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
+    // Toggle visibility between login and register forms
+    loginBtn.addEventListener('click', () => {
+      loginBtn.classList.add('active');
+      registerBtn.classList.remove('active');
+      loginForm.classList.add('active');
+      registerForm.classList.remove('active');
+    });
+
+    registerBtn.addEventListener('click', () => {
+      registerBtn.classList.add('active');
+      loginBtn.classList.remove('active');
+      registerForm.classList.add('active');
+      loginForm.classList.remove('active');
+    });
+  </script>
+
+</body>
+</html>

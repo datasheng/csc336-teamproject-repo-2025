@@ -1,0 +1,495 @@
+/* ===================================
+   CCNY Beavers Campus Event Ticketing System
+   Main Stylesheet for All Pages
+   Colors: Purple, Gold, White, Dark Grey
+   =================================== */
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* CCNY Color Palette */
+    --ccny-purple: #5a2d81;
+    --ccny-gold: #f5a623;
+    --ccny-white: #ffffff;
+    --ccny-dark-grey: #2c2c2c;
+    --ccny-light-grey: #f4f4f4;
+    --ccny-medium-grey: #6c6c6c;
+    
+    /* Spacing */
+    --spacing-sm: 10px;
+    --spacing-md: 20px;
+    --spacing-lg: 40px;
+    
+    /* Border Radius */
+    --radius-sm: 5px;
+    --radius-md: 10px;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--ccny-light-grey);
+    color: var(--ccny-dark-grey);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/*  HEADER & NAVIGATION */
+header {
+    background: linear-gradient(135deg, var(--ccny-purple) 0%, var(--ccny-dark-grey) 100%);
+    color: var(--ccny-white);
+    padding: var(--spacing-md) 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--ccny-gold);
+}
+
+.logo p {
+    font-size: 0.9rem;
+    color: var(--ccny-white);
+    margin-top: 5px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+nav ul li a {
+    color: var(--ccny-white);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 15px;
+    border-radius: var(--radius-sm);
+    transition: all 0.3s ease;
+}
+
+nav ul li a:hover {
+    background-color: var(--ccny-gold);
+    color: var(--ccny-dark-grey);
+}
+
+nav ul li a.active {
+    background-color: var(--ccny-gold);
+    color: var(--ccny-dark-grey);
+}
+
+/* MAIN CONTAINER */
+.container {
+    max-width: 1200px;
+    margin: var(--spacing-lg) auto;
+    padding: 0 var(--spacing-md);
+}
+
+/* HERO SECTION (Homepage) */
+.hero {
+    background: linear-gradient(135deg, var(--ccny-purple) 0%, var(--ccny-dark-grey) 100%);
+    color: var(--ccny-white);
+    padding: 60px var(--spacing-md);
+    text-align: center;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.hero h2 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+    color: var(--ccny-gold);
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-md);
+}
+
+/* BUTTONS*/
+.btn {
+    display: inline-block;
+    padding: 12px 30px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: var(--ccny-gold);
+    color: var(--ccny-dark-grey);
+}
+
+.btn-primary:hover {
+    background-color: #d48f1a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+    background-color: var(--ccny-purple);
+    color: var(--ccny-white);
+}
+
+.btn-secondary:hover {
+    background-color: #4a2468;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: var(--ccny-white);
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+/* Event Cards*/
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+.event-card {
+    background-color: var(--ccny-white);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.event-card h3 {
+    color: var(--ccny-purple);
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.3rem;
+}
+
+.event-card .event-meta {
+    color: var(--ccny-medium-grey);
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.event-card .event-meta span {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.event-card .event-price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--ccny-gold);
+    margin: var(--spacing-sm) 0;
+}
+
+.event-card .event-description {
+    color: var(--ccny-dark-grey);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.5;
+}
+
+/*FORMS*/
+.form-container {
+    background-color: var(--ccny-white);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.form-container h2 {
+    color: var(--ccny-purple);
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--ccny-dark-grey);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--ccny-light-grey);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--ccny-purple);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 5px;
+    color: var(--ccny-medium-grey);
+    font-size: 0.85rem;
+}
+
+/*Login/Register*/
+.auth-toggle {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--spacing-md);
+    gap: var(--spacing-sm);
+}
+
+.auth-toggle button {
+    padding: 10px 30px;
+    border: 2px solid var(--ccny-purple);
+    background-color: var(--ccny-white);
+    color: var(--ccny-purple);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.auth-toggle button.active {
+    background-color: var(--ccny-purple);
+    color: var(--ccny-white);
+}
+
+.auth-toggle button:hover {
+    background-color: var(--ccny-purple);
+    color: var(--ccny-white);
+}
+
+.auth-form {
+    display: none;
+}
+
+.auth-form.active {
+    display: block;
+}
+
+/* TABLES (Revenue Page)*/
+.table-container {
+    background-color: var(--ccny-white);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+    margin-top: var(--spacing-md);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table thead {
+    background-color: var(--ccny-purple);
+    color: var(--ccny-white);
+}
+
+table th,
+table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--ccny-light-grey);
+}
+
+table th {
+    font-weight: 600;
+}
+
+table tbody tr:hover {
+    background-color: var(--ccny-light-grey);
+}
+
+table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Revenue Dashboard */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.stat-card {
+    background-color: var(--ccny-white);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.stat-card h3 {
+    color: var(--ccny-medium-grey);
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-sm);
+    text-transform: uppercase;
+}
+
+.stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--ccny-purple);
+}
+
+.stat-card.gold .stat-value {
+    color: var(--ccny-gold);
+}
+
+/*ALERTS & MESSAGES*/
+.alert {
+    padding: 15px;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* FOOTER */
+footer {
+    background-color: var(--ccny-dark-grey);
+    color: var(--ccny-white);
+    text-align: center;
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+footer p {
+    margin: 5px 0;
+}
+
+/*  UTILITY CLASSES*/
+.text-center {
+    text-align: center;
+}
+
+.mt-1 {
+    margin-top: var(--spacing-sm);
+}
+
+.mt-2 {
+    margin-top: var(--spacing-md);
+}
+
+.mt-3 {
+    margin-top: var(--spacing-lg);
+}
+
+.mb-1 {
+    margin-bottom: var(--spacing-sm);
+}
+
+.mb-2 {
+    margin-bottom: var(--spacing-md);
+}
+
+.mb-3 {
+    margin-bottom: var(--spacing-lg);
+}
+
+/* RESPONSIVE DESIGN*/
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    nav ul {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        text-align: center;
+    }
+
+    .hero h2 {
+        font-size: 1.8rem;
+    }
+
+    .events-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/*SECTION HEADERS*/
+.section-header {
+    margin-bottom: var(--spacing-md);
+}
+
+.section-header h2 {
+    color: var(--ccny-purple);
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.section-header p {
+    color: var(--ccny-medium-grey);
+    font-size: 1.1rem;
+}

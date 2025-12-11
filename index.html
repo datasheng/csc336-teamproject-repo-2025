@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CCNY Beavers | Campus Event Ticketing</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <!-- Header / Navigation-->
+  <header>
+    <div class="header-container">
+      <div class="logo">
+        <h1>CCNY Beavers</h1>
+        <p>Campus Event Ticketing System</p>
+      </div>
+      <nav>
+        <ul>
+          <!-- Backend Work:
+               Later, turn these into Flask routes (url_for).
+               Example: <a href="{{ url_for('home') }}" class="active">Home</a> -->
+          <li><a class="active" href="index.html">Home</a></li>
+          <li><a href="event-detail.html">Event Details</a></li>
+          <li><a href="create-event.html">Create Event</a></li>
+          <li><a href="revenue.html">Revenue</a></li>
+          <li><a href="login.html">Organization Login</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero-->
+  <div class="container">
+    <section class="hero">
+      <h2>Discover, Register, and Host CCNY Events</h2>
+      <p>
+        Browse campus events, reserve tickets, and manage your club’s activities.
+        Built for CCNY students and organizations.
+      </p>
+      <a class="btn btn-primary" href="#events">Browse Events</a>
+      <a class="btn btn-secondary" href="login.html">I’m an Organization</a>
+    </section>
+  </div>
+
+  <!-- Events List (Homepage)-->
+  <div id="events" class="container">
+    <div class="section-header">
+      <h2>Upcoming Events</h2>
+      <p>Explore what’s happening on campus. Click “View Details” to learn more or register.</p>
+    </div>
+
+    <!-- Backend Work:
+         Replace these example cards with a loop that loads events from the Events table.
+         Each “View Details” button should link to /event/<event_id> (Flask route),
+         or use a query string like event-detail.html?event_id=123 so the page knows which event to show. -->
+    <div class="events-grid">
+      <!-- Event Card 1 -->
+      <article class="event-card">
+        <h3>HackCCNY 2025</h3>
+        <div class="event-meta">
+          <span>📅 March 10, 2025 — 10:00 AM</span>
+          <span>📍 Tech Hub, NAC</span>
+          <span>🎓 Organizer: CCNY Tech Club</span>
+        </div>
+        <p class="event-description">
+          24-hour hackathon open to all majors. Build, learn, and compete with fellow Beavers.
+        </p>
+        <div class="event-price">$10</div>
+        <a class="btn btn-primary" href="event-detail.html?event_id=1">View Details</a>
+      </article>
+
+      <!-- Event Card 2 -->
+      <article class="event-card">
+        <h3>Spring Cultural Night</h3>
+        <div class="event-meta">
+          <span>📅 April 2, 2025 — 6:00 PM</span>
+          <span>📍 Great Hall, Shepard Hall</span>
+          <span>🎓 Organizer: MSA</span>
+        </div>
+        <p class="event-description">
+          Celebrate CCNY’s diversity with performances, food, and community.
+        </p>
+        <div class="event-price">$5</div>
+        <a class="btn btn-primary" href="event-detail.html?event_id=2">View Details</a>
+      </article>
+
+      <!-- Event Card 3 -->
+      <article class="event-card">
+        <h3>Cybersecurity Workshop</h3>
+        <div class="event-meta">
+          <span>📅 April 15, 2025 — 4:30 PM</span>
+          <span>📍 Marshak 3/220</span>
+          <span>🎓 Organizer: Cybersecurity Club</span>
+        </div>
+        <p class="event-description">
+          Learn practical ways to stay safe online and spot common attacks.
+        </p>
+        <div class="event-price">Free</div>
+        <a class="btn btn-primary" href="event-detail.html?event_id=3">View Details</a>
+      </article>
+    </div>
+  </div>
+
+  <!-- Footer (simple, no logo image)-->
+  <footer>
+  <p>City College of New York • CCNY Beavers Event Ticketing System</p>
+</footer>
+</body>
+</html>
+

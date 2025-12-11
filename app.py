@@ -7,15 +7,12 @@ from flask import (
     Flask, render_template, request, redirect, url_for, session, g, flash
 )
 
-# Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
-# Set a secret key for session management (required for session['org_id'])
-# We load this from the .env file
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'a_very_fallback_secret_key')
 
-# --- Database Connection Management ---
+# Database Connection Management
 
 def get_db():
     """
@@ -25,12 +22,11 @@ def get_db():
     if 'db' not in g:
         g.db = mysql.connector.connect(
             host=os.environ.get('MYSQL_HOST', 'localhost'),
-            port=os.environ.get('MYSQL_PORT', 3307), # Use the port from .env
+            port=os.environ.get('MYSQL_PORT', 3307), 
             user=os.environ.get('MYSQL_USER'),
             password=os.environ.get('MYSQL_PASSWORD'),
             database=os.environ.get('MYSQL_DATABASE')
         )
-        # Use a dictionary cursor to get column names
         g.cursor = g.db.cursor(dictionary=True)
     return g.db, g.cursor
 
@@ -47,7 +43,7 @@ def close_db(e=None):
     if db is not None:
         db.close()
 
-# --- Authentication Decorator ---
+# Authentication Decorator
 
 def login_required(f):
     """
@@ -57,12 +53,11 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'org_id' not in session:
-            # If not logged in, redirect to the login page
             return redirect(url_for('login_register'))
         return f(*args, **kwargs)
     return decorated_function
 
-# --- Routes for Serving HTML Pages (GET Requests) ---
+# Routes for Serving HTML Pages (GET Requests)
 
 @app.route("/")
 def index():
@@ -121,11 +116,8 @@ def login_register():
     and POST requests for both login and registration forms.
     """
     if request.method == "POST":
-        # This is placeholder logic.
-        # You need to differentiate between the login and register forms.
-        # For example, by checking a hidden input or the submit button's 'name' attribute.
         
-        # --- IF REGISTER FORM ---
+        # IF REGISTER FORM 
         # org_name = request.form['orgName']
         # email = request.form['orgEmail']
         # password = request.form['orgPassword'] 
@@ -134,7 +126,7 @@ def login_register():
         # TODO: Log them in by setting session['org_id']
         # return redirect(url_for('create_event'))
 
-        # --- IF LOGIN FORM ---
+        # IF LOGIN FORM
         # email = request.form['loginEmail']
         # password = request.form['loginPassword']
         # TODO: Query 'organizations' table for user by email
@@ -159,7 +151,7 @@ def register_for_event():
     Handle user registration for a specific event.
     """
     if request.method == "POST":
-        # --- Handle Event Registration Form ---
+        # Handle Event Registration Form
         # event_id = request.form['event']
         # full_name = request.form['fullname']
         # email = request.form['email']
@@ -187,7 +179,7 @@ def thank_you():
     """Render the thank you page after registration."""
     return render_template("thank-you.html")
 
-# --- Organization-Only Routes ---
+# Organization-Only Routes 
 # These routes are protected by our @login_required decorator
 
 @app.route("/create-event", methods=["GET", "POST"])
@@ -197,7 +189,7 @@ def create_event():
     Allow logged-in organizations to create new events.
     """
     if request.method == "POST":
-        # --- Handle Create Event Form ---
+        # Handle Create Event Form
         # org_id = session['org_id'] # Get the logged-in org's ID
         # title = request.form['eventName']
         # starts_at = request.form['eventDate']
@@ -239,7 +231,7 @@ def revenue_dashboard():
     return render_template("revenue.html", stats=stats, event_rows=event_rows)
 
 
-# --- Run the Application ---
+# Run the Application
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

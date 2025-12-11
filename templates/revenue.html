@@ -1,72 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Revenue Dashboard | CCNY Beavers Event Ticketing</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-  <!--HEADER (same as all pages)-->
+  <!-- HEADER (same across all pages) -->
   <header>
     <div class="header-container">
       <div class="logo">
         <h1>CCNY Beavers</h1>
         <p>Event Ticketing System</p>
       </div>
+
       <nav>
         <ul>
-          <li><a href="{{ url_for('index') }}">Home</a></li>
-          <li><a href="{{ url_for('event_list') }}">Events</a></li>
-          <li><a href="{{ url_for('register_for_event') }}">Register</a></li>
-          {% if session.get('org_id') %}
-          <li><a href="{{ url_for('logout') }}">Logout</a></li>
-          {% else %}
-          <li><a href="{{ url_for('login_register') }}">Organization Login</a></li>
-          {% endif %}
-          <li><a href="{{ url_for('create_event') }}">Create Event</a></li>
-          <li><a href="{{ url_for('revenue_dashboard') }}" class="active">Revenue</a></li>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="event-detail.html">Events</a></li>
+          <li><a href="register.html">Register</a></li>
+          <li><a href="login.html">Organization Login</a></li>
+          <li><a href="create-event.html">Create Event</a></li>
+          <li><a href="revenue.html" class="active">Revenue</a></li>
         </ul>
       </nav>
     </div>
   </header>
 
-  <!-- REVENUE DASHBOARD SECTION-->
+  <!-- REVENUE DASHBOARD-->
   <main class="container">
+
     <section class="section-header">
       <h2>Revenue Dashboard</h2>
-      <p>Track your event earnings, ticket sales, and attendance performance.</p>
+      <p>Track event earnings, ticket sales, and attendance performance.</p>
     </section>
 
-    <!-- STATS OVERVIEW CARDS-->
+    <!-- ===================================
+         STATS CARDS (Dynamic Backend Values)
+         =================================== -->
     <div class="stats-grid">
 
-      <!-- BACKEND: Replace these placeholder values with real MySQL data -->
+      <!-- BACKEND:
+           Replace {{ total_revenue }} with real value from database -->
       <div class="stat-card gold">
         <h3>Total Revenue</h3>
-        <div class="stat-value">{{ stats.total_revenue }}</div>
+        <div class="stat-value">
+          ${{ total_revenue }}
+        </div>
       </div>
 
+      <!-- BACKEND:
+           Replace {{ total_tickets_sold }} with actual count -->
       <div class="stat-card">
         <h3>Total Tickets Sold</h3>
-        <div class="stat-value">{{ stats.total_tickets_sold }}</div>
+        <div class="stat-value">
+          {{ total_tickets_sold }}
+        </div>
       </div>
 
+      <!-- BACKEND:
+           Replace {{ events_count }} with count of events hosted -->
       <div class="stat-card">
         <h3>Events Hosted</h3>
-        <div class="stat-value">{{ stats.events_hosted }}</div>
+        <div class="stat-value">
+          {{ events_count }}
+        </div>
       </div>
 
+      <!-- BACKEND:
+           Replace {{ avg_attendance }} with average percentage -->
       <div class="stat-card">
         <h3>Average Attendance</h3>
-        <div class="stat-value">{{ stats.avg_attendance }}</div>
+        <div class="stat-value">
+          {{ avg_attendance }}%
+        </div>
       </div>
+
     </div>
 
-    <!-- REVENUE TABLE-->
+    <!--REVENUE TABLE (Dynamic Loop)-->
     <div class="table-container">
       <table>
         <thead>
@@ -78,28 +93,30 @@
             <th>Attendance (%)</th>
           </tr>
         </thead>
+
         <tbody>
-          {% for row in event_rows %}
+          <!-- BACKEND:
+               Flask will loop through each event and fill rows.
+               revenue_data = list of event dictionaries.
+          -->
+          {% for event in revenue_data %}
           <tr>
-            <td>{{ row.title }}</td>
-            <td>{{ row.starts_at.strftime('%b %d, %Y') }}</td>
-            <td>{{ row.tickets_sold }}</td>
-            <td>${{ "{:,.2f}".format(row.revenue_cents / 100) }}</td>
-            <td>TBD</td>
+            <td>{{ event.name }}</td>
+            <td>{{ event.date }}</td>
+            <td>{{ event.tickets_sold }}</td>
+            <td>{{ event.revenue }}</td>
+            <td>{{ event.attendance }}%</td>
           </tr>
           {% endfor %}
-          {% if not event_rows %}
-          <tr>
-            <td colspan="5">No revenue data available.</td>
-          </tr>
-          {% endif %}
         </tbody>
       </table>
     </div>
 
-    <!--EXPORT BUTTON TO EXCEL-->
+    <!--EXPORT TO EXCEL BUTTON-->
     <div class="text-center mt-3">
-      <!-- BACKEND: Flask will generate and download Excel sheet using event + payment data -->
+      <!-- BACKEND:
+           Button should download an Excel file generated from MySQL data.
+           Placeholder for now. -->
       <button class="btn btn-secondary">Export to Excel (Placeholder)</button>
     </div>
 
@@ -111,14 +128,13 @@
   </footer>
 
 </body>
-
 </html>
 
-<!-- 
-     BACKEND ACCESS CONTROL NOTE
-     
-     This page must be restricted to logged-in organizations only.
-     - Flask should verify session['org_id'] exists before rendering.
-     - If not logged in, redirect user to login.html.
-     
+<!-- BACKEND ACCESS CONTROL NOTE
+ This page must ONLY be visible to logged-in organizations.
+
+ Backend must:
+ - Check if session['org_id'] exists
+ - If NOT logged in → redirect to login.html
+ - If logged in → load revenue data and show this page
 -->

@@ -307,4 +307,4 @@ def revenue_dashboard():
     return render_template("revenue.html", stats=stats, event_rows=event_rows)
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', debug=True, port=5000)

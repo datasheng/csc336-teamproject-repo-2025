@@ -1,20 +1,43 @@
+version: '3.8'
+
 services:
+  # FLASK APP
+  web:
+    build: .             # Builds the Dockerfile in your root folder
+    container_name: campus_backend
+    restart: always      # Auto-restart if it crashes or server reboots
+    ports:
+      - "80:5000"        # Public Port 80 (HTTP) -> Internal Flask Port 5000
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # These must match the service name 'db' below
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
+
+  # DATABASE
   db:
     image: mysql:8.0
     container_name: campus_mysql
+    restart: always      # Auto-restart
     command:
       # - "--default-authentication-plugin=mysql_native_password" removed as it causes issues in newer MySQL 8 versions if deprecated/removed
       - "--secure-file-priv=/var/lib/mysql-files"
     ports:
-      - "${MYSQL_PORT}:3306"          # e.g. 3307:3306 in your .env
+      - "${MYSQL_PORT}:3306"
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
-      - dbdata:/var/lib/mysql        # persistent storage
-      - ./mysql-init:/docker-entrypoint-initdb.d  # <-- keep this for schema + seed
+      - dbdata:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
       - ./mysql-files:/var/lib/mysql-files
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD} --silent"]
@@ -22,9 +45,11 @@ services:
       timeout: 5s
       retries: 20
 
+  # OPTIONAL: Database Viewer
   adminer:
     image: adminer:latest
     container_name: campus_adminer
+    restart: always
     ports:
       - "8080:8080"
     depends_on:

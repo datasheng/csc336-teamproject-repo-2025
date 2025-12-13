@@ -1,124 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Revenue Dashboard | CCNY Beavers Event Ticketing</title>
+  <title>Revenue | CCNY Beavers</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-
 <body>
-
-  <!--HEADER (same as all pages)-->
   <header>
     <div class="header-container">
-      <div class="logo">
-        <h1>CCNY Beavers</h1>
-        <p>Event Ticketing System</p>
-      </div>
+      <div class="logo"><h1>CCNY Beavers</h1><p>Revenue Dashboard</p></div>
       <nav>
         <ul>
           <li><a href="{{ url_for('index') }}">Home</a></li>
           <li><a href="{{ url_for('event_list') }}">Events</a></li>
-          <li><a href="{{ url_for('register_for_event') }}">Register</a></li>
-          {% if session.get('org_id') %}
           <li><a href="{{ url_for('logout') }}">Logout</a></li>
-          {% else %}
-          <li><a href="{{ url_for('login_register') }}">Organization Login</a></li>
-          {% endif %}
-          <li><a href="{{ url_for('create_event') }}">Create Event</a></li>
-          <li><a href="{{ url_for('revenue_dashboard') }}" class="active">Revenue</a></li>
         </ul>
       </nav>
     </div>
   </header>
 
-  <!-- REVENUE DASHBOARD SECTION-->
   <main class="container">
-    <section class="section-header">
-      <h2>Revenue Dashboard</h2>
-      <p>Track your event earnings, ticket sales, and attendance performance.</p>
-    </section>
+    <div class="section-header">
+      <h2>{{ stats.role }} Dashboard</h2>
+      {% if is_admin %}
+        <p class="text-muted">Viewing global 7% platform fee revenue from all organizations.</p>
+      {% else %}
+        <p class="text-muted">Viewing your event revenue (Total Sales minus 7% Platform Fee).</p>
+      {% endif %}
+    </div>
 
-    <!-- STATS OVERVIEW CARDS-->
     <div class="stats-grid">
-
-      <!-- BACKEND: Replace these placeholder values with real MySQL data -->
       <div class="stat-card gold">
-        <h3>Total Revenue</h3>
+        <h3>{% if is_admin %}Platform Fees{% else %}Net Revenue{% endif %}</h3>
         <div class="stat-value">{{ stats.total_revenue }}</div>
       </div>
-
       <div class="stat-card">
-        <h3>Total Tickets Sold</h3>
+        <h3>Tickets Sold</h3>
         <div class="stat-value">{{ stats.total_tickets_sold }}</div>
       </div>
-
       <div class="stat-card">
-        <h3>Events Hosted</h3>
+        <h3>Events Tracked</h3>
         <div class="stat-value">{{ stats.events_hosted }}</div>
-      </div>
-
-      <div class="stat-card">
-        <h3>Average Attendance</h3>
-        <div class="stat-value">{{ stats.avg_attendance }}</div>
       </div>
     </div>
 
-    <!-- REVENUE TABLE-->
     <div class="table-container">
       <table>
         <thead>
           <tr>
             <th>Event Name</th>
+            {% if is_admin %}<th>Organization</th>{% endif %}
             <th>Date</th>
             <th>Tickets Sold</th>
-            <th>Revenue ($)</th>
-            <th>Attendance (%)</th>
+            <th>{% if is_admin %}Fee Earned ($){% else %}Net Earnings ($){% endif %}</th>
           </tr>
         </thead>
         <tbody>
           {% for row in event_rows %}
           <tr>
             <td>{{ row.title }}</td>
+            {% if is_admin %}<td>{{ row.org_name }}</td>{% endif %}
             <td>{{ row.starts_at.strftime('%b %d, %Y') }}</td>
             <td>{{ row.tickets_sold }}</td>
-            <td>${{ "{:,.2f}".format(row.revenue_cents / 100) }}</td>
-            <td>TBD</td>
+            <td style="font-weight: bold; color: green;">${{ "{:,.2f}".format(row.revenue_cents / 100) }}</td>
           </tr>
           {% endfor %}
           {% if not event_rows %}
-          <tr>
-            <td colspan="5">No revenue data available.</td>
-          </tr>
+          <tr><td colspan="5">No data available.</td></tr>
           {% endif %}
         </tbody>
       </table>
     </div>
-
-    <!--EXPORT BUTTON TO EXCEL-->
-    <div class="text-center mt-3">
-      <!-- BACKEND: Flask will generate and download Excel sheet using event + payment data -->
-      <button class="btn btn-secondary">Export to Excel (Placeholder)</button>
-    </div>
-
   </main>
-
-  <!-- FOOTER -->
-  <footer>
-    <p>City College of New York • CCNY Beavers Event Ticketing System</p>
-  </footer>
-
+  <footer><p>City College of New York • Event System</p></footer>
 </body>
-
 </html>
-
-<!-- 
-     BACKEND ACCESS CONTROL NOTE
-     
-     This page must be restricted to logged-in organizations only.
-     - Flask should verify session['org_id'] exists before rendering.
-     - If not logged in, redirect user to login.html.
-     
--->

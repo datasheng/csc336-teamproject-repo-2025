@@ -1,128 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Organization Login | CCNY Beavers Event Ticketing</title>
+  <title>Login / Register | CCNY Beavers</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    .auth-toggle { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;}
+    .auth-toggle button { padding: 10px 20px; cursor: pointer; background: #eee; border: none; border-radius: 5px; }
+    .auth-toggle button.active { background: #007bff; color: white; font-weight: bold; }
+    .auth-form { display: none; }
+    .auth-form.active { display: block; }
+    
+    /* Alert Styles */
+    .alert { padding: 15px; margin-bottom: 20px; border-radius: 4px; position: relative; }
+    .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+    .close-btn { position: absolute; top: 10px; right: 15px; cursor: pointer; font-weight: bold; border: none; background: none;}
+  </style>
 </head>
-
 <body>
-
-  <!-- HEADER (same as all pages)-->
   <header>
     <div class="header-container">
-      <div class="logo">
-        <h1>CCNY Beavers</h1>
-        <p>Event Ticketing System</p>
-      </div>
+      <div class="logo"><h1>CCNY Beavers</h1><p>Event Ticketing</p></div>
       <nav>
         <ul>
-          <li><a href="{{ url_for('index') }}">Home</a></li>
-          <li><a href="{{ url_for('event_list') }}">Events</a></li>
-          <li><a href="{{ url_for('register_for_event') }}">Register</a></li>
-          {% if session.get('org_id') %}
-          <li><a href="{{ url_for('logout') }}" class="active">Logout</a></li>
-          {% else %}
-          <li><a href="{{ url_for('login_register') }}" class="active">Organization Login</a></li>
-          {% endif %}
-          <li><a href="{{ url_for('create_event') }}">Create Event</a></li>
-          <li><a href="{{ url_for('revenue_dashboard') }}">Revenue</a></li>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('event_list') }}">Events</a></li>
+            <li><a href="{{ url_for('register_for_event') }}">Register</a></li>
+            <li><a href="{{ url_for('login_register') }}" class="active">Login</a></li>
         </ul>
       </nav>
     </div>
   </header>
 
-  <!--AUTHENTICATION SECTION-->
   <main class="container">
-    <div class="form-container">
+    <div class="form-container" style="max-width: 500px; margin: 50px auto;">
+      
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              {{ message }}
+              <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
 
-      <h2>Organization Access</h2>
+      <h2 class="text-center">Portal Access</h2>
 
-      <!-- Toggle Buttons -->
       <div class="auth-toggle">
-        <button id="loginBtn" class="active">Login</button>
-        <button id="registerBtn">Register</button>
+        <button id="tabOrg" class="active" onclick="switchTab('org')">Organization Login</button>
+        <button id="tabAdmin" onclick="switchTab('admin')">Admin Login</button>
+        <button id="tabReg" onclick="switchTab('reg')">Register Org</button>
       </div>
 
-      <!--LOGIN FORM (Visible by default)-->
-      <form id="loginForm" class="auth-form active" method="POST">
-        <!-- Backend: Verify organization credentials and start a session -->
+      <form id="formOrg" class="auth-form active" method="POST">
+        <h3>Organization Login</h3>
         <div class="form-group">
-          <label for="loginEmail">Organization Email</label>
-          <input type="email" id="loginEmail" name="loginEmail" placeholder="Enter your registered email" required>
+          <label>Email</label>
+          <input type="email" name="loginEmail" required>
         </div>
-
         <div class="form-group">
-          <label for="loginPassword">Password</label>
-          <input type="password" id="loginPassword" name="loginPassword" placeholder="Enter your password" required>
+          <label>Password</label>
+          <input type="password" name="loginPassword" required>
         </div>
-
-        <button type="submit" class="btn btn-primary">Login</button>
-
-        <!-- Backend: Handle form submission, validate credentials, redirect to create-event.html if successful -->
+        <button type="submit" class="btn btn-primary w-100">Login as Organization</button>
       </form>
 
-      <!-- REGISTER FORM (Hidden initially)-->
-      <form id="registerForm" class="auth-form" method="POST">
-        <!-- Backend: Insert new organization details into database (Organizations table) -->
+      <form id="formAdmin" class="auth-form" method="POST">
+        <h3>Admin Login</h3>
+        <p class="text-muted">Access site-wide revenue reports.</p>
         <div class="form-group">
-          <label for="orgName">Organization Name</label>
-          <input type="text" id="orgName" name="orgName" placeholder="Enter organization name" required>
+          <label>Admin Email</label>
+          <input type="email" name="loginEmail" required>
         </div>
-
         <div class="form-group">
-          <label for="orgEmail">Contact Email</label>
-          <input type="email" id="orgEmail" name="orgEmail" placeholder="Enter organization email" required>
+          <label>Password</label>
+          <input type="password" name="loginPassword" required>
         </div>
-
-        <div class="form-group">
-          <label for="orgPhone">Phone Number</label>
-          <input type="tel" id="orgPhone" name="orgPhone" placeholder="Enter contact phone number" required>
-        </div>
-
-        <div class="form-group">
-          <label for="orgPassword">Password</label>
-          <input type="password" id="orgPassword" name="orgPassword" placeholder="Create a password" required>
-        </div>
-
-        <button type="submit" class="btn btn-success">Register</button>
-
-        <!-- Backend: Store this new organization in MySQL “Organizations” table and redirect to create-event.html -->
+        <button type="submit" class="btn btn-dark w-100">Login as Admin</button>
       </form>
+
+      <form id="formReg" class="auth-form" method="POST">
+        <h3>Register New Organization</h3>
+        <div class="form-group">
+          <label>Organization Name</label>
+          <input type="text" name="orgName" required>
+        </div>
+        <div class="form-group">
+          <label>Contact Email</label>
+          <input type="email" name="orgEmail" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="orgPassword" required>
+        </div>
+        <button type="submit" class="btn btn-success w-100">Create Account</button>
+      </form>
+
     </div>
   </main>
 
-  <!-- FOOTER-->
-  <footer>
-    <p>City College of New York • CCNY Beavers Event Ticketing System</p>
-  </footer>
-
-  <!-- SIMPLE JS TOGGLE SCRIPT
-       (No backend, purely frontend)-->
   <script>
-    const loginBtn = document.getElementById('loginBtn');
-    const registerBtn = document.getElementById('registerBtn');
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
+    function switchTab(tab) {
+        // Reset all
+        document.querySelectorAll('.auth-form').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.auth-toggle button').forEach(el => el.classList.remove('active'));
 
-    // Toggle visibility between login and register forms
-    loginBtn.addEventListener('click', () => {
-      loginBtn.classList.add('active');
-      registerBtn.classList.remove('active');
-      loginForm.classList.add('active');
-      registerForm.classList.remove('active');
-    });
-
-    registerBtn.addEventListener('click', () => {
-      registerBtn.classList.add('active');
-      loginBtn.classList.remove('active');
-      registerForm.classList.add('active');
-      loginForm.classList.remove('active');
-    });
+        // Activate specific
+        if(tab === 'org') {
+            document.getElementById('formOrg').classList.add('active');
+            document.getElementById('tabOrg').classList.add('active');
+        } else if (tab === 'admin') {
+            document.getElementById('formAdmin').classList.add('active');
+            document.getElementById('tabAdmin').classList.add('active');
+        } else if (tab === 'reg') {
+            document.getElementById('formReg').classList.add('active');
+            document.getElementById('tabReg').classList.add('active');
+        }
+    }
   </script>
-
+  
+  <footer><p>City College of New York • Event System</p></footer>
 </body>
-
 </html>

@@ -9,7 +9,6 @@
 </head>
 
 <body>
-  <!-- Header / Navigation-->
   <header>
     <div class="header-container">
       <div class="logo">
@@ -18,24 +17,21 @@
       </div>
       <nav>
         <ul>
-          <!-- Backend Work:
-               Later, turn these into Flask routes (url_for).
-               Example: <a href="{{ url_for('index') }}" class="active">Home</a> -->
           <li><a class="active" href="{{ url_for('index') }}">Home</a></li>
-          <li><a href="{{ url_for('event_list') }}">Event Details</a></li>
-          <li><a href="{{ url_for('create_event') }}">Create Event</a></li>
-          <li><a href="{{ url_for('revenue_dashboard') }}">Revenue</a></li>
-          {% if session.get('org_id') %}
-          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          <li><a href="{{ url_for('event_list') }}">Events</a></li>
+          
+          {% if session.get('user_id') %}
+            <li><a href="{{ url_for('create_event') }}">Create Event</a></li>
+            <li><a href="{{ url_for('revenue_dashboard') }}">Revenue</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
           {% else %}
-          <li><a href="{{ url_for('login_register') }}">Organization Login</a></li>
+            <li><a href="{{ url_for('login_register') }}">Login / Register</a></li>
           {% endif %}
         </ul>
       </nav>
     </div>
   </header>
 
-  <!-- Hero-->
   <div class="container">
     <section class="hero">
       <h2>Discover, Register, and Host CCNY Events</h2>
@@ -43,33 +39,29 @@
         Browse campus events, reserve tickets, and manage your club’s activities.
         Built for CCNY students and organizations.
       </p>
-      <a class="btn btn-primary" href="#events">Browse Events</a>
+      <a class="btn btn-primary" href="{{ url_for('event_list') }}">Browse Events</a>
+      {% if not session.get('user_id') %}
       <a class="btn btn-secondary" href="{{ url_for('login_register') }}">I’m an Organization</a>
+      {% endif %}
     </section>
   </div>
 
-  <!-- Events List (Homepage)-->
   <div id="events" class="container">
     <div class="section-header">
       <h2>Upcoming Events</h2>
       <p>Explore what’s happening on campus. Click “View Details” to learn more or register.</p>
     </div>
 
-    <!-- Backend Work:
-         Replace these example cards with a loop that loads events from the Events table.
-         Each “View Details” button should link to /event/<event_id> (Flask route),
-         or use a query string like event-detail.html?event_id=123 so the page knows which event to show. -->
     <div class="events-grid">
       {% for event in events %}
       <article class="event-card">
         <h3>{{ event.title }}</h3>
         <div class="event-meta">
-          <span>📅 {{ event.starts_at.strftime('%B %d, %Y — %I:%M %p') }}</span>
+          <span>📅 {{ event.starts_at.strftime('%b %d') }}</span>
           <span>📍 {{ event.venue }}</span>
-          <span>🎓 Organizer: {{ event.org_name }}</span>
         </div>
         <p class="event-description">
-          Join us for {{ event.title }}! Click below for more details.
+          Organized by {{ event.org_name }}
         </p>
         <div class="event-price">
           {% if event.price_cents == 0 %}
@@ -78,7 +70,6 @@
           ${{ "{:,.2f}".format(event.price_cents / 100) }}
           {% endif %}
         </div>
-        <!-- Link to the main events list since we don't have individual event pages yet -->
         <a class="btn btn-primary" href="{{ url_for('event_list') }}">View Details</a>
       </article>
       {% endfor %}
@@ -89,10 +80,8 @@
     </div>
   </div>
 
-  <!-- Footer (simple, no logo image)-->
   <footer>
     <p>City College of New York • CCNY Beavers Event Ticketing System</p>
   </footer>
 </body>
-
 </html>

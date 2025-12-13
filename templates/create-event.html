@@ -1,116 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Event | CCNY Beavers Event Ticketing</title>
+  <title>Create Event | CCNY Beavers</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-
 <body>
-
-  <!-- HEADER (same as all pages)-->
   <header>
     <div class="header-container">
-      <div class="logo">
-        <h1>CCNY Beavers</h1>
-        <p>Event Ticketing System</p>
-      </div>
+      <div class="logo"><h1>CCNY Beavers</h1><p>Organizer Portal</p></div>
       <nav>
         <ul>
           <li><a href="{{ url_for('index') }}">Home</a></li>
           <li><a href="{{ url_for('event_list') }}">Events</a></li>
-          <li><a href="{{ url_for('register_for_event') }}">Register</a></li>
-          {% if session.get('org_id') %}
-          <li><a href="{{ url_for('logout') }}">Logout</a></li>
-          {% else %}
-          <li><a href="{{ url_for('login_register') }}">Organization Login</a></li>
-          {% endif %}
           <li><a href="{{ url_for('create_event') }}" class="active">Create Event</a></li>
           <li><a href="{{ url_for('revenue_dashboard') }}">Revenue</a></li>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
         </ul>
       </nav>
     </div>
   </header>
 
-  <!-- CREATE EVENT FORM-->
   <main class="container">
-    <div class="form-container">
-      <h2>Create New Event</h2>
+    <div class="form-container" style="max-width: 600px; margin: 0 auto;">
+      
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
 
-      <!-- 
-        BACKEND NOTE:
-        - This form is accessible only to logged-in organizations.
-        - On submit, Flask should insert data into the “Events” table.
-        - After success, redirect to thank_you.html.
-      -->
-      <form id="createEventForm" method="POST">
-
+      <h2>Host a New Event</h2>
+      
+      <form action="{{ url_for('create_event') }}" method="POST">
+        
         <div class="form-group">
-          <label for="eventName">Event Name</label>
-          <input type="text" id="eventName" name="eventName" placeholder="Enter event name" required>
+          <label>Event Title</label>
+          <input type="text" name="eventName" placeholder="e.g. End of Semester Bash" required>
         </div>
 
         <div class="form-group">
-          <label for="eventDate">Date & Time</label>
-          <input type="datetime-local" id="eventDate" name="eventDate" required>
+          <label>Description</label>
+          <textarea name="eventDescription" rows="4" placeholder="Describe the event details..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
         </div>
 
         <div class="form-group">
-          <label for="eventLocation">Location</label>
-          <input type="text" id="eventLocation" name="eventLocation" placeholder="Enter event location" required>
+          <label>Venue / Location</label>
+          <input type="text" name="eventLocation" placeholder="e.g. NAC Ballroom" required>
         </div>
 
         <div class="form-group">
-          <label for="eventDescription">Description</label>
-          <textarea id="eventDescription" placeholder="Describe the event" required></textarea>
+          <label>Date & Time</label>
+          <input type="datetime-local" name="eventDate" required>
         </div>
 
         <div class="form-group">
-          <label for="ticketPrice">Ticket Price ($)</label>
-          <input type="number" id="ticketPrice" name="ticketPrice" placeholder="Enter ticket price" required>
+          <label>Ticket Price ($)</label>
+          <input type="number" name="ticketPrice" step="0.01" min="0" placeholder="0.00" required>
         </div>
 
         <div class="form-group">
-          <label for="totalTickets">Total Tickets Available</label>
-          <input type="number" id="totalTickets" name="totalTickets" placeholder="Enter number of tickets" required>
+          <label>Total Tickets Available</label>
+          <input type="number" name="totalTickets" min="1" placeholder="e.g. 100" required>
         </div>
 
-        <div class="form-group">
-          <label for="eventCategory">Event Category</label>
-          <select id="eventCategory" required>
-            <option value="" disabled selected>Select a category</option>
-            <option>Tech</option>
-            <option>Sports</option>
-            <option>Cultural</option>
-            <option>Academic</option>
-            <option>Social</option>
-            <option>Fundraising</option>
-          </select>
-        </div>
-
-        <!-- BACKEND: Flask should validate form, store in “Events” table, and redirect -->
-        <button type="submit" class="btn btn-success">Create Event</button>
+        <button type="submit" class="btn btn-primary w-100">Publish Event</button>
       </form>
     </div>
   </main>
 
-  <!-- FOOTER-->
-  <footer>
-    <p>City College of New York • CCNY Beavers Event Ticketing System</p>
-  </footer>
-
-
-
+  <footer><p>City College of New York • Event System</p></footer>
 </body>
-
 </html>
-
-<!-- 
-     BACKEND ACCESS CONTROL NOTE
-     
-     This page must be restricted to logged-in organizations only.
-     - Flask should verify session['org_id'] exists before rendering.
-     - If not logged in, redirect user to login.html.
--->

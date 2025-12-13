@@ -247,26 +247,25 @@ def create_event():
         qty_total = int(request.form['totalTickets'])
 
         try:
-            # 1. Insert Event
-            cursor.execute("""
-                INSERT INTO events (org_id, title, venue, starts_at, ends_at, capacity, is_published)
-                VALUES (%s, %s, %s, %s, %s, %s, TRUE)
-            """, (org_id, title, venue, starts_at, ends_at, qty_total))
-            event_id = cursor.lastrowid
-
-            # 2. Create Default Ticket
-            cursor.execute("""
-                INSERT INTO tickets (event_id, name, price_cents, qty_total)
-                VALUES (%s, 'General Admission', %s, %s)
-            """, (event_id, price_cents, qty_total))
+            # Stored procedure call
+            cursor.callproc('CreateEventWithTicket', [
+                org_id, 
+                title, 
+                venue, 
+                starts_at, 
+                ends_at, 
+                qty_total,   # Capacity
+                price_cents, # Ticket Price
+                qty_total    # Ticket Quantity
+            ])
             
             db.commit()
             return redirect(url_for('thank_you'))
             
-        except Exception as e:
+        except mysql.connector.Error as err:
             db.rollback()
-            print(e)
-            flash("Error creating event")
+            print(f"Error: {err}")
+            flash("Error creating event. Please check your inputs.")
 
     return render_template("create-event.html")
 
@@ -276,7 +275,6 @@ def revenue_dashboard():
     db, cursor = get_db()
     org_id = session['org_id']
     
-    # 1. Aggregate Stats
     cursor.execute("""
         SELECT 
             COUNT(DISTINCT e.event_id) as events_hosted,
@@ -296,27 +294,19 @@ def revenue_dashboard():
         'total_revenue': f"${data['total_revenue_cents'] / 100:,.2f}",
         'total_tickets_sold': data['total_tickets_sold'],
         'events_hosted': data['events_hosted'],
-        'avg_attendance': "TBD" # Logic for attendance % requires capacity calculation
+        'avg_attendance': "TBD" 
     }
 
-    # 2. Get Per-Event Data for Table
-    cursor.execute("""
-        SELECT 
-            e.title, 
-            e.starts_at,
-            COALESCE(SUM(oi.qty), 0) as tickets_sold,
-            COALESCE(SUM(p.amount_cents), 0) as revenue_cents
-        FROM events e
-        LEFT JOIN tickets t ON e.event_id = t.event_id
-        LEFT JOIN order_items oi ON t.ticket_id = oi.ticket_id
-        LEFT JOIN orders o ON oi.order_id = o.order_id
-        LEFT JOIN payments p ON o.order_id = p.order_id
-        WHERE e.org_id = %s AND (p.status = 'SUCCEEDED' OR p.status IS NULL)
-        GROUP BY e.event_id
-        ORDER BY e.starts_at DESC
-    """, (org_id,))
+    # Stored procedure call
+    cursor.close()
+    db, cursor = get_db()
     
-    event_rows = cursor.fetchall()
+    cursor.callproc('GetOrgRevenueReport', [org_id])
+    
+    # Stored procedures return multiple result sets, iterate to find the data
+    event_rows = []
+    for result in cursor.stored_results():
+        event_rows = result.fetchall()
 
     return render_template("revenue.html", stats=stats, event_rows=event_rows)
 

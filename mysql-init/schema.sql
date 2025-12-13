@@ -91,3 +91,58 @@ CREATE INDEX idx_tickets_event ON tickets(event_id);
 CREATE INDEX idx_oi_order ON order_items(order_id);
 CREATE INDEX idx_oi_ticket ON order_items(ticket_id);
 CREATE INDEX idx_pay_order ON payments(order_id);
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS GetOrgRevenueReport //
+
+CREATE PROCEDURE GetOrgRevenueReport(IN target_org_id INT)
+BEGIN
+    SELECT 
+        e.title, 
+        e.starts_at,
+        COALESCE(SUM(oi.qty), 0) as tickets_sold,
+        COALESCE(SUM(p.amount_cents), 0) as revenue_cents
+    FROM events e
+    LEFT JOIN tickets t ON e.event_id = t.event_id
+    LEFT JOIN order_items oi ON t.ticket_id = oi.ticket_id
+    LEFT JOIN orders o ON oi.order_id = o.order_id
+    LEFT JOIN payments p ON o.order_id = p.order_id
+    WHERE e.org_id = target_org_id 
+      AND (p.status = 'SUCCEEDED' OR p.status IS NULL)
+    GROUP BY e.event_id
+    ORDER BY e.starts_at DESC;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS CreateEventWithTicket //
+
+CREATE PROCEDURE CreateEventWithTicket(
+    IN p_org_id INT, 
+    IN p_title VARCHAR(200), 
+    IN p_venue VARCHAR(200), 
+    IN p_starts_at DATETIME, 
+    IN p_ends_at DATETIME, 
+    IN p_capacity INT,
+    IN p_price_cents INT,
+    IN p_ticket_qty INT
+)
+BEGIN
+    DECLARE new_event_id INT;
+
+    -- 1. Create the Event
+    INSERT INTO events (org_id, title, venue, starts_at, ends_at, capacity, is_published)
+    VALUES (p_org_id, p_title, p_venue, p_starts_at, p_ends_at, p_capacity, TRUE);
+    
+    -- Capture the ID of the event we just made
+    SET new_event_id = LAST_INSERT_ID();
+
+    -- 2. Create the Default Ticket for that Event
+    INSERT INTO tickets (event_id, name, price_cents, qty_total)
+    VALUES (new_event_id, 'General Admission', p_price_cents, p_ticket_qty);
+END //
+
+DELIMITER ;

@@ -39,9 +39,7 @@ def close_db(e=None):
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Allow Admins OR Org Members
         if 'user_id' not in session:
-             # REDIRECT LOGIC: Send them to login, but remember where they wanted to go (next)
             return redirect(url_for('login_register', next=request.url))
         return f(*args, **kwargs)
     return decorated_function
@@ -67,7 +65,6 @@ def index():
 @app.route("/events")
 def event_list():
     db, cursor = get_db()
-    # Updated to fetch DESCRIPTION
     query = """
     SELECT e.event_id, e.title, e.venue, e.description, e.starts_at, e.ends_at, o.org_name, MIN(t.price_cents) as price_cents
     FROM events e
@@ -83,19 +80,16 @@ def event_list():
 
 @app.route("/login", methods=["GET", "POST"])
 def login_register():
-    # Capture the 'next' page if it exists (e.g., they tried to go to Create Event)
     next_url = request.args.get('next') or url_for('index')
 
     if request.method == "POST":
         db, cursor = get_db()
         
-        # --- REGISTER LOGIC (Organizations Only) ---
         if 'orgName' in request.form:
             org_name = request.form['orgName']
             email = request.form['orgEmail']
             raw_password = request.form['orgPassword']
             
-            # Check for duplicates first
             cursor.execute("SELECT user_id FROM users WHERE email = %s", (email,))
             if cursor.fetchone():
                 flash("This email is already registered. Please login.", "warning")
@@ -116,7 +110,6 @@ def login_register():
                 
                 db.commit()
                 
-                # Auto-login and go to Create Event
                 session['user_id'] = new_user_id
                 session['org_id'] = new_org_id
                 session['is_admin'] = False
@@ -127,7 +120,6 @@ def login_register():
                 db.rollback()
                 flash(f"Registration error: {err}", "danger")
 
-        # --- LOGIN LOGIC (Admin AND Org) ---
         elif 'loginEmail' in request.form:
             email = request.form['loginEmail']
             password = request.form['loginPassword']
@@ -139,7 +131,6 @@ def login_register():
                 session['user_id'] = user['user_id']
                 session['is_admin'] = bool(user.get('is_admin', False))
 
-                # If it's a regular user, find their org
                 if not session['is_admin']:
                     cursor.execute("SELECT org_id FROM org_members WHERE user_id = %s", (user['user_id'],))
                     membership = cursor.fetchone()
@@ -147,7 +138,6 @@ def login_register():
                         session['org_id'] = membership['org_id']
                 
                 flash("Welcome back!", "success")
-                # REDIRECT LOGIC: Go to 'next' if it was set, otherwise Home
                 return redirect(next_url)
             else:
                 flash("Invalid email or password. Please try again.", "danger")
@@ -223,7 +213,6 @@ def register_for_event():
             cursor.execute("INSERT INTO payments (order_id, provider, status, amount_cents) VALUES (%s, %s, %s, %s)",
                            (order_id, provider, status, total_cost))
 
-            # REVENUE LOGIC: ADMIN GETS 7%
             platform_fee = int(total_cost * 0.07) 
             cursor.execute("INSERT INTO revenue (order_id, platform_fee_cents, created_at) VALUES (%s, %s, NOW())",
                            (order_id, platform_fee))
@@ -253,7 +242,6 @@ def thank_you():
 @app.route("/create-event", methods=["GET", "POST"])
 @login_required
 def create_event():
-    # Only Orgs can create events
     if session.get('is_admin'):
         flash("Admins cannot create events.", "warning")
         return redirect(url_for('revenue_dashboard'))
@@ -263,7 +251,7 @@ def create_event():
         org_id = session['org_id']
         
         title = request.form['eventName']
-        description = request.form.get('eventDescription', '') # Capture Description
+        description = request.form.get('eventDescription', '') 
         venue = request.form['eventLocation']
         starts_at_str = request.form['eventDate']
         
@@ -282,7 +270,7 @@ def create_event():
             cursor.callproc('CreateEventWithTicket', [
                 org_id, 
                 title, 
-                description, # Pass Description
+                description, 
                 venue, 
                 start_dt, 
                 end_dt, 
@@ -293,7 +281,7 @@ def create_event():
             
             db.commit()
             flash("Event created successfully!", "success")
-            return redirect(url_for('index')) # Redirect to Home after creation
+            return redirect(url_for('index')) 
             
         except mysql.connector.Error as err:
             db.rollback()
@@ -302,21 +290,79 @@ def create_event():
 
     return render_template("create-event.html")
 
+# --- NEW: ORDER MANAGEMENT ROUTES ---
+
+@app.route("/update-order/<int:order_id>/<action>", methods=["POST"])
+@login_required
+def update_order_status(order_id, action):
+    db, cursor = get_db()
+    
+    # 1. Verify Permission (Security Check)
+    # If Admin, they can edit anything. If Org, they must own the event.
+    is_admin = session.get('is_admin', False)
+    org_id = session.get('org_id')
+
+    # Fetch order details to check ownership
+    cursor.execute("""
+        SELECT e.org_id 
+        FROM orders o
+        JOIN order_items oi ON o.order_id = oi.order_id
+        JOIN tickets t ON oi.ticket_id = t.ticket_id
+        JOIN events e ON t.event_id = e.event_id
+        WHERE o.order_id = %s
+    """, (order_id,))
+    
+    order_data = cursor.fetchone()
+    
+    if not order_data:
+        flash("Order not found.", "danger")
+        return redirect(url_for('revenue_dashboard'))
+
+    if not is_admin and (not org_id or order_data['org_id'] != org_id):
+        flash("Unauthorized action.", "danger")
+        return redirect(url_for('revenue_dashboard'))
+
+    # 2. Perform Action
+    if action == 'pay':
+        cursor.execute("UPDATE payments SET status = 'SUCCEEDED' WHERE order_id = %s", (order_id,))
+        flash(f"Order #{order_id} marked as PAID.", "success")
+    elif action == 'cancel':
+        cursor.execute("UPDATE payments SET status = 'FAILED' WHERE order_id = %s", (order_id,))
+        flash(f"Order #{order_id} has been CANCELLED.", "warning")
+    
+    db.commit()
+    return redirect(url_for('revenue_dashboard'))
+
 @app.route("/revenue")
 @login_required
 def revenue_dashboard():
     db, cursor = get_db()
     is_admin = session.get('is_admin', False)
+    org_id = session.get('org_id')
     
     event_rows = []
-    
+    pending_orders = []
+
+    # 1. FETCH REVENUE STATS (Existing Logic)
     if is_admin:
-        # ADMIN VIEW: See 7% of everything
         cursor.callproc('GetAdminRevenueReport')
         for result in cursor.stored_results():
             event_rows = result.fetchall()
         
-        # Calculate stats from rows
+        # Admin pending query (See ALL pending)
+        cursor.execute("""
+            SELECT o.order_id, u.full_name, u.student_id, e.title, p.amount_cents, o.created_at
+            FROM orders o
+            JOIN users u ON o.buyer_user_id = u.user_id
+            JOIN order_items oi ON o.order_id = oi.order_id
+            JOIN tickets t ON oi.ticket_id = t.ticket_id
+            JOIN events e ON t.event_id = e.event_id
+            JOIN payments p ON o.order_id = p.order_id
+            WHERE p.status = 'PENDING'
+            ORDER BY o.created_at DESC
+        """)
+        pending_orders = cursor.fetchall()
+        
         total_rev = sum(row['revenue_cents'] for row in event_rows)
         total_tix = sum(row['tickets_sold'] for row in event_rows)
         
@@ -328,11 +374,23 @@ def revenue_dashboard():
         }
         
     else:
-        # ORG VIEW: See 93% of their own events
-        org_id = session.get('org_id')
         cursor.callproc('GetOrgRevenueReport', [org_id])
         for result in cursor.stored_results():
             event_rows = result.fetchall()
+
+        # Org pending query (See ONLY their events)
+        cursor.execute("""
+            SELECT o.order_id, u.full_name, u.student_id, e.title, p.amount_cents, o.created_at
+            FROM orders o
+            JOIN users u ON o.buyer_user_id = u.user_id
+            JOIN order_items oi ON o.order_id = oi.order_id
+            JOIN tickets t ON oi.ticket_id = t.ticket_id
+            JOIN events e ON t.event_id = e.event_id
+            JOIN payments p ON o.order_id = p.order_id
+            WHERE p.status = 'PENDING' AND e.org_id = %s
+            ORDER BY o.created_at DESC
+        """, (org_id,))
+        pending_orders = cursor.fetchall()
 
         total_rev = sum(row['revenue_cents'] for row in event_rows)
         total_tix = sum(row['tickets_sold'] for row in event_rows)
@@ -344,7 +402,11 @@ def revenue_dashboard():
             'events_hosted': len(event_rows)
         }
 
-    return render_template("revenue.html", stats=stats, event_rows=event_rows, is_admin=is_admin)
+    return render_template("revenue.html", 
+                           stats=stats, 
+                           event_rows=event_rows, 
+                           pending_orders=pending_orders, # Pass pending orders to template
+                           is_admin=is_admin)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True, port=5000)

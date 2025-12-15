@@ -7,7 +7,6 @@
   <title>Register for Event | CCNY Beavers Event Ticketing</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
   <style>
-    /* Basic styling for the error/success popup */
     .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px;position: relative; }
     .alert-warning { color: #856404; background-color: #fff3cd; border-color: #ffeeba; }
     .alert-success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
@@ -121,12 +120,11 @@
       
         <script>
         function toggleCardInputs() {
-            var method = document.getElementById("paymentMethod").value; // Matches the ID above
+            var method = document.getElementById("paymentMethod").value; 
             var cardSection = document.getElementById("cardDetails");
             
-            if (method === "card") { // Matches the value="card" option
+            if (method === "card") { 
                 cardSection.style.display = "block";
-                // Make fields required so they can't submit empty
                 cardSection.querySelectorAll('input').forEach(i => i.required = true);
             } else {
                 cardSection.style.display = "none";

@@ -1,8 +1,8 @@
--- 1. USERS TABLE (Added is_admin flag)
+
 CREATE TABLE users (
   user_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   full_name VARCHAR(120),
-  email VARCHAR(160) UNIQUE, -- Enforce uniqueness at DB level too
+  email VARCHAR(160) UNIQUE, 
   student_id VARCHAR(20) UNIQUE,
   password_hash VARCHAR(255),
   is_admin BOOLEAN DEFAULT FALSE
@@ -22,12 +22,12 @@ CREATE TABLE org_members (
   CONSTRAINT fk_members_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- 2. EVENTS TABLE (Added description column)
+
 CREATE TABLE events (
   event_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   org_id INT UNSIGNED NOT NULL,
   title VARCHAR(200) NOT NULL,
-  description TEXT, -- New Column
+  description TEXT, 
   venue VARCHAR(200),
   starts_at DATETIME NOT NULL,
   ends_at DATETIME NOT NULL,
@@ -96,19 +96,17 @@ CREATE INDEX idx_oi_order ON order_items(order_id);
 CREATE INDEX idx_oi_ticket ON order_items(ticket_id);
 CREATE INDEX idx_pay_order ON payments(order_id);
 
--- 3. STORED PROCEDURES
+-- STORED PROCEDURES
 
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS GetOrgRevenueReport //
--- Calculates 93% of revenue for the specific organization
 CREATE PROCEDURE GetOrgRevenueReport(IN target_org_id INT)
 BEGIN
     SELECT 
         e.title, 
         e.starts_at,
         COALESCE(SUM(oi.qty), 0) as tickets_sold,
-        -- Calculate Total Revenue minus 7% fee (Approx 93%)
         CAST(COALESCE(SUM(p.amount_cents) * 0.93, 0) AS UNSIGNED) as revenue_cents
     FROM events e
     LEFT JOIN tickets t ON e.event_id = t.event_id
@@ -122,7 +120,6 @@ BEGIN
 END //
 
 DROP PROCEDURE IF EXISTS GetAdminRevenueReport //
--- Calculates 7% of revenue across ALL organizations
 CREATE PROCEDURE GetAdminRevenueReport()
 BEGIN
     SELECT 
@@ -130,7 +127,6 @@ BEGIN
         o_org.org_name,
         e.starts_at,
         COALESCE(SUM(oi.qty), 0) as tickets_sold,
-        -- Calculate 7% Fee
         CAST(COALESCE(SUM(p.amount_cents) * 0.07, 0) AS UNSIGNED) as revenue_cents
     FROM events e
     JOIN organizations o_org ON e.org_id = o_org.org_id
@@ -148,7 +144,7 @@ DROP PROCEDURE IF EXISTS CreateEventWithTicket //
 CREATE PROCEDURE CreateEventWithTicket(
     IN p_org_id INT, 
     IN p_title VARCHAR(200),
-    IN p_description TEXT, -- Added Description
+    IN p_description TEXT, 
     IN p_venue VARCHAR(200), 
     IN p_starts_at DATETIME, 
     IN p_ends_at DATETIME, 

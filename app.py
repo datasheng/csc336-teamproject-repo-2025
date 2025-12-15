@@ -168,7 +168,7 @@ def register_for_event():
         event_id = request.form['event']
         full_name = request.form['fullname']
         email = request.form['email']
-        student_id = request.form['studentid']
+        student_id = request.form['student_id']
         payment_method = request.form.get('payment')
         qty = 1 
         

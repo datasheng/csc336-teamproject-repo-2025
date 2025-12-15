@@ -8,14 +8,16 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
   <style>
     /* Basic styling for the error/success popup */
-    .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; }
+    .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px;position: relative; }
     .alert-warning { color: #856404; background-color: #fff3cd; border-color: #ffeeba; }
     .alert-success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
+    .close-btn { position: absolute; top: 10px; right: 15px; cursor: pointer; font-weight: bold; border: none; background: none; font-size: 18px; color: #000  !important;
+  z-index: 10; }
   </style>
 </head>
 
 <body>
-  <header>
+  <header>  
     <div class="header-container">
       <div class="logo">
         <h1>CCNY Beavers</h1>
@@ -47,6 +49,9 @@
             {% for category, message in messages %}
               <div class="alert alert-{{ category }}">
                 {{ message }}
+                <button class="close-btn" onclick="this.parentElement.style.display='none';">
+                  &times;
+                </button>
               </div>
             {% endfor %}
           </div>
@@ -81,7 +86,7 @@
 
         <div class="form-group">
           <label for="studentid">CCNY Student ID</label>
-          <input type="text" id="studentid" name="studentid" placeholder="Enter your 8-digit Student ID" required />
+          <input type="text" id="studentid" name="student_id" placeholder="Enter your 8-digit Student ID" required />
         </div>
 
         <div class="form-group">

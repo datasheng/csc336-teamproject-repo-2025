@@ -44,22 +44,18 @@
     
         <div style="border: 2px dashed #ccc; padding: 20px; margin: 20px 0; background-color: #f8f9fa; border-radius: 10px;">
           <h3 style="color: #007bff; margin-bottom: 5px;">{{ event.title }}</h3>
-          <p style="font-size: 1.1em; font-weight: bold; color: #666;">{{ event.starts_at }}</p>
+          <p style="color: #666; font-size: 1.1em; font-weight: bold;">{{ event.starts_at }}</p>
           <p style="color: #666;">📍 {{ event.venue }}</p>
           
           <hr>
           
-          <div style="display: flex; justify-content: space-between; padding: 0 20px;">
-            <span style="color: #666;">Order ID: <strong>#{{ order_id }}</strong></span>
-            <div style="display: flex; justify-content: space-between; padding: 0 20px;">
-              <span style="color: #666;">Order ID: <strong>#{{ order_id }}</strong></span>
-              
+          <div style="color: #666; display: flex; justify-content: space-between; padding: 0 20px;">
+            <span>Order ID: <strong>#{{ order_id }}</strong></span>
               {% if payment_status == 'SUCCEEDED' %}
                   <span>Status: <strong style="color: green; border: 1px solid green; padding: 2px 5px; border-radius: 4px;">PAID</strong></span>
               {% else %}
                   <span>Status: <strong style="color: #856404; background-color: #fff3cd; padding: 2px 5px; border-radius: 4px;">PAY AT DOOR</strong></span>
               {% endif %}
-            </div>
           </div>
         </div>
         <p style="font-size: 0.9em; color: #888;">Please screenshot this digital ticket for check-in.</p>
